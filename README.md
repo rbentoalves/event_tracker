@@ -1,2 +1,3 @@
-# event_tracker
-Event Tracker
+# event_tracker_functions
+
+Functions to be used on Event Tracker Manager
