@@ -17,10 +17,13 @@ def create_event_tracker_file(final_df_to_add, incidents, component_data, df_all
     incidents_corrected_fleet_period_per_period = {}
 
     for period in period_list:
-        availability_period_df, raw_availability_period_df, activehours_period_df, incidents_corrected_period, date_range = \
-            perfonitor.calculations.availability_in_period(incidents, period, component_data, df_all_irradiance,
-                                                           df_all_export, budget_pr, irradiance_threshold=20,
-                                                           timestamp=15)
+        availability_period_df, raw_availability_period_df, activehours_period_df, incidents_corrected_period, \
+        all_corrected_incidents, date_range = perfonitor.calculations.availability_in_period(incidents, period,
+                                                                                             component_data,
+                                                                                             df_all_irradiance,
+                                                                                             df_all_export, budget_pr,
+                                                                                             irradiance_threshold=20,
+                                                                                             timestamp=15)
 
         availability_fleet_per_period[period] = availability_period_df
         raw_availability_fleet_per_period[period] = raw_availability_period_df

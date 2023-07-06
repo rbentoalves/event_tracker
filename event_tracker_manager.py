@@ -86,7 +86,7 @@ def main():
             # Get info dataframes necessary
             print("Reading general info files and creating dataframes...")
             component_data, tracker_data, fmeca_data, site_capacities, fleet_capacity, budget_irradiance, \
-            budget_pr, budget_export = perfonitor.data_acquisition.get_general_info_dataframes(general_info_path)
+            budget_pr, budget_export, all_site_info = perfonitor.data_acquisition.get_general_info_dataframes(general_info_path)
 
             # Correct unnamed columns
             fmeca_data = fmeca_data.loc[:, ~fmeca_data.columns.str.contains('^Unnamed')]
@@ -136,11 +136,7 @@ def main():
             # Correct active hours and energy loss to account for overlapping incidents
             print("Correcting overlapping events...")
             corrected_incidents_dict = perfonitor.data_treatment.correct_incidents_irradiance_for_overlapping_parents(
-                incidents,
-                df_all_irradiance,
-                df_all_export,
-                component_data,
-                recalculate_value)
+                incidents, df_all_irradiance, df_all_export, component_data, recalculate_value)
 
             # Calculate active hours and energy lost with correction for overlapping parents
             print("Creating final dataframes of the Event tracker...")
@@ -176,10 +172,14 @@ def main():
             incidents_corrected_fleet_period_per_period = {}
 
             for period in period_list:
-                availability_period_df, raw_availability_period_df, activehours_period_df, incidents_corrected_period, date_range = \
-                    perfonitor.calculations.availability_in_period(incidents, period, component_data, df_all_irradiance,
-                                                                   df_all_export, budget_pr, irradiance_threshold=20,
-                                                                   timestamp=15)
+                availability_period_df, raw_availability_period_df, activehours_period_df, incidents_corrected_period, \
+                all_corrected_incidents, date_range = perfonitor.calculations.availability_in_period(incidents, period,
+                                                                                                     component_data,
+                                                                                                     df_all_irradiance,
+                                                                                                     df_all_export,
+                                                                                                     budget_pr,
+                                                                                                     irradiance_threshold=20,
+                                                                                                     timestamp=15)
 
                 availability_fleet_per_period[period] = availability_period_df
                 raw_availability_fleet_per_period[period] = raw_availability_period_df
@@ -234,7 +234,6 @@ def main():
                 if event == 'Yes':
                     command = 'start "EXCEL.EXE" "' + str(dest_file) + '"'
                     os.system(command)
-                    
 
         if event == 'Update Event Tracker':
 
@@ -256,9 +255,9 @@ def main():
             report_files, irradiance_files, export_files, all_irradiance_file, all_export_file, general_info_path = \
                 perfonitor.data_acquisition.get_files_to_add(date_start, date_end, dmr_folder, geography)
 
-            folder = os.path.dirname(report_files[0])
-            dest_file = folder + '/Event Tracker/Event Tracker ' + geography + '_Final.xlsx'
-            folder_img = folder + '/Event Tracker/images'
+            et_folder = os.path.dirname(event_tracker_path)
+            dest_file = et_folder + '/Event Tracker ' + geography + '_Final.xlsx'
+            folder_img = et_folder + '/images'
 
             """print("All Irradiance file: ", all_irradiance_file, "\n Irradiance files: ", irradiance_files,
                   "\n All Export file: ", all_export_file, "\n Export files: ", export_files,
@@ -299,7 +298,7 @@ def main():
             # Get info dataframes necessary
             print("Reading general info files and creating dataframes...")
             component_data, tracker_data, fmeca_data, site_capacities, fleet_capacity, budget_irradiance, \
-            budget_pr, budget_export = perfonitor.data_acquisition.get_general_info_dataframes(general_info_path)
+            budget_pr, budget_export, all_site_info = perfonitor.data_acquisition.get_general_info_dataframes(general_info_path)
 
             # Get incidents' dataframes
             print("Reading incident and Event Tracker files and creating dataframes...")
@@ -359,10 +358,14 @@ def main():
             incidents_corrected_fleet_period_per_period = {}
 
             for period in period_list:
-                availability_period_df, raw_availability_period_df, activehours_period_df, incidents_corrected_period, date_range = \
-                    perfonitor.calculations.availability_in_period(incidents, period, component_data, df_all_irradiance,
-                                                                   df_all_export, budget_pr, irradiance_threshold=20,
-                                                                   timestamp=15)
+                availability_period_df, raw_availability_period_df, activehours_period_df, incidents_corrected_period, \
+                all_corrected_incidents, date_range = perfonitor.calculations.availability_in_period(incidents, period,
+                                                                                                     component_data,
+                                                                                                     df_all_irradiance,
+                                                                                                     df_all_export,
+                                                                                                     budget_pr,
+                                                                                                     irradiance_threshold=20,
+                                                                                                     timestamp=15)
 
                 availability_fleet_per_period[period] = availability_period_df
                 raw_availability_fleet_per_period[period] = raw_availability_period_df
@@ -417,7 +420,6 @@ def main():
                 if event == 'Yes':
                     command = 'start "EXCEL.EXE" "' + str(dest_file) + '"'
                     os.system(command)
-                    
 
         if event == 'Event Tracker':
 
@@ -475,7 +477,7 @@ def main():
             # Get info dataframes necessary
             print("Reading general info files and creating dataframes...")
             component_data, tracker_data, fmeca_data, site_capacities, fleet_capacity, budget_irradiance, \
-            budget_pr, budget_export = perfonitor.data_acquisition.get_general_info_dataframes(general_info_path)
+            budget_pr, budget_export, all_site_info = perfonitor.data_acquisition.get_general_info_dataframes(general_info_path)
             # </editor-fold>
 
             # <editor-fold desc="Get incidents dataframes">
@@ -539,11 +541,13 @@ def main():
 
             for period in period_list:
                 availability_period_df, raw_availability_period_df, activehours_period_df, incidents_corrected_period, \
-                date_range = perfonitor.calculations.availability_in_period(incidents, period, component_data,
-                                                                            df_all_irradiance,
-                                                                            df_all_export, budget_pr,
-                                                                            irradiance_threshold=20,
-                                                                            timestamp=15)
+                all_corrected_incidents, date_range = perfonitor.calculations.availability_in_period(incidents, period,
+                                                                                                     component_data,
+                                                                                                     df_all_irradiance,
+                                                                                                     df_all_export,
+                                                                                                     budget_pr,
+                                                                                                     irradiance_threshold=20,
+                                                                                                     timestamp=15)
 
                 availability_fleet_per_period[period] = availability_period_df
                 raw_availability_fleet_per_period[period] = raw_availability_period_df
@@ -598,7 +602,6 @@ def main():
                 if event == 'Yes':
                     command = 'start "EXCEL.EXE" "' + str(dest_file) + '"'
                     os.system(command)
-                    
 
         if event == 'Underperformance Report':
 
@@ -654,7 +657,7 @@ def main():
             # Get info dataframes necessary
             print("Reading general info files and creating dataframes...")
             component_data, tracker_data, fmeca_data, site_capacities, fleet_capacity, budget_irradiance, \
-            budget_pr, budget_export = perfonitor.data_acquisition.get_general_info_dataframes(general_info_path)
+            budget_pr, budget_export, all_site_info = perfonitor.data_acquisition.get_general_info_dataframes(general_info_path)
             # </editor-fold>
 
             # <editor-fold desc="Get incidents dataframes from Event Tracker">
@@ -732,11 +735,14 @@ def main():
             incidents_corrected_fleet_period_per_period = {}
 
             for period in period_list:
-                availability_period_df, raw_availability_period_df, activehours_period_df, incidents_corrected_period, date_range = \
-                    perfonitor.calculations.availability_in_period(incidents, period, component_data, df_all_irradiance,
-                                                                   df_all_export, budget_pr,
-                                                                   irradiance_threshold=irradiance_threshold,
-                                                                   timestamp=15)
+                availability_period_df, raw_availability_period_df, activehours_period_df, incidents_corrected_period, \
+                all_corrected_incidents, date_range = perfonitor.calculations.availability_in_period(incidents, period,
+                                                                                                     component_data,
+                                                                                                     df_all_irradiance,
+                                                                                                     df_all_export,
+                                                                                                     budget_pr,
+                                                                                                     irradiance_threshold=20,
+                                                                                                     timestamp=15)
 
                 availability_fleet_per_period[period] = availability_period_df
                 raw_availability_fleet_per_period[period] = raw_availability_period_df
@@ -799,11 +805,6 @@ def main():
                 if event == 'Yes':
                     command = 'start "EXCEL.EXE" "' + str(underperformance_dest_file) + '"'
                     os.system(command)
-                    
-                
-                    
-
-            
 
         if event == "Monday.com files":
             date_start, date_end, event_tracker_folder, geography = perfonitor.inputs.mondaycom_file()
