@@ -1,17 +1,17 @@
 import os
-import perfonitor.calculations 
-import perfonitor.data_acquisition 
-import perfonitor.data_treatment 
-import perfonitor.file_creation 
-import perfonitor.inputs 
+import calculations
+import data_acquisition
+import data_treatment
+import file_creation
+import inputs
 import re
-import event_tracker.visuals as visuals
+import visuals
 from datetime import datetime
 import PySimpleGUI as sg
 import pandas as pd
 
 
-def main():
+def main(site_list, pre_selection):
     sg.theme('DarkAmber')  # Add a touch of color
     # All the stuff inside your window.
     layout = [[sg.Text('Welcome to the Event Tracker Manager, what do you want to do?', pad=((2, 10), (2, 5)))],
@@ -76,9 +76,10 @@ def main():
 
             # <editor-fold desc="Get site list">
             # Get site list from irradiance dataframe
-            site_list = list(set([re.search(r'\[.+\]', site).group().replace('[', "").replace(']', "") for site in
-                                  df_all_irradiance.loc[:,
-                                  df_all_irradiance.columns.str.contains('Irradiance')].columns]))
+            if len(site_list) == 0:
+                site_list = list(set([re.search(r'\[.+\]', site).group().replace('[', "").replace(']', "") for site in
+                                      df_all_irradiance.loc[:,
+                                      df_all_irradiance.columns.str.contains('Irradiance')].columns]))
             site_list = [perfonitor.data_treatment.correct_site_name(site) for site in site_list]
             # </editor-fold>
 
@@ -288,9 +289,10 @@ def main():
 
             # <editor-fold desc="Get site list">
             # Get site list from irradiance dataframe
-            site_list = list(set([re.search(r'\[.+\]', site).group().replace('[', "").replace(']', "") for site in
-                                  df_all_irradiance.loc[:,
-                                  df_all_irradiance.columns.str.contains('Irradiance')].columns]))
+            if len(site_list) == 0:
+                site_list = list(set([re.search(r'\[.+\]', site).group().replace('[', "").replace(']', "") for site in
+                                      df_all_irradiance.loc[:,
+                                      df_all_irradiance.columns.str.contains('Irradiance')].columns]))
             site_list = [perfonitor.data_treatment.correct_site_name(site) for site in site_list]
             # </editor-fold>
 
@@ -467,9 +469,10 @@ def main():
 
             # <editor-fold desc="Get site list">
             # Get site list from irradiance dataframe
-            site_list = list(set([re.search(r'\[.+\]', site).group().replace('[', "").replace(']', "") for site in
-                                  df_all_irradiance.loc[:,
-                                  df_all_irradiance.columns.str.contains('Irradiance')].columns]))
+            if len(site_list) == 0:
+                site_list = list(set([re.search(r'\[.+\]', site).group().replace('[', "").replace(']', "") for site in
+                                      df_all_irradiance.loc[:,
+                                      df_all_irradiance.columns.str.contains('Irradiance')].columns]))
             site_list = [perfonitor.data_treatment.correct_site_name(site) for site in site_list]
             # </editor-fold>
 
@@ -610,7 +613,7 @@ def main():
             # <editor-fold desc="Get inputs, files necessary to analysis">
             # Get input of critical information for update, dates and file locations
             source_folder, geography, geopgraphy_folder, recalculate_value, period_list, level, irradiance_threshold \
-                = perfonitor.inputs.underperformance_report()
+                = perfonitor.inputs.underperformance_report(site_list, pre_selection)
 
             # print(source_folder, "\n" , geography, "\n" , geopgraphy_folder, "\n" ,recalculate_value,"\n" , period_list)
 
@@ -647,7 +650,8 @@ def main():
 
             # <editor-fold desc="Get site list">
             # Get site list from irradiance dataframe
-            site_list = list(set([re.search(r'\[.+\]', site).group().replace('[', "").replace(']', "") for site in
+            if len(site_list) == 0:
+                site_list = list(set([re.search(r'\[.+\]', site).group().replace('[', "").replace(']', "") for site in
                                   df_all_irradiance.loc[:,
                                   df_all_irradiance.columns.str.contains('Irradiance')].columns]))
             site_list = [perfonitor.data_treatment.correct_site_name(site) for site in site_list]
